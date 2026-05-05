@@ -1,6 +1,6 @@
-const { defineConfig, devices } = require('@playwright/test')
+import { defineConfig, devices } from '@playwright/test'
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: './e2e-tests',
   timeout: 30000,
   use: {
@@ -9,7 +9,7 @@ module.exports = defineConfig({
   webServer: {
     command: 'npm start',
     url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
   },
   projects: [
     {
