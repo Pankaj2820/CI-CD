@@ -18,3 +18,5 @@ Start by running `npm install` inside the project folder
 
 
 This change is made on a feature branch.
+
+Added automatic versioning.
