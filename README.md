@@ -1,3 +1,7 @@
+# CI-CD Pokedex
+
+App deployed at: https://ci-cd-72ot.onrender.com
+
 # Full Stack open CI/CD
 
 This repository is used for the CI/CD module of the Full Stack Open course
@@ -11,3 +15,5 @@ Start by running `npm install` inside the project folder
 `npm run eslint` to run eslint
 `npm run build` to make a production build
 `npm run start-prod` to run your production build
+
+
