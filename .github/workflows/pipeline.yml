@@ -9,7 +9,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  simple_deployment_pipeline:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,23 +28,18 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
         run: npm run test:e2e
+
+  deploy:
+    needs: [build_and_test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Trigger deployment
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
-      - name: Notify Discord on failure
-        if: failure()
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: failure
-          title: 'Build Failed!'
-          description: |
-            Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}
-            Author: ${{ github.event.head_commit.author.name }}
 
   tag_release:
-    needs: [simple_deployment_pipeline]
+    needs: [deploy]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +49,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+
+  notify_success:
+    needs: [tag_release]
+    runs-on: ubuntu-latest
+    steps:
       - name: Notify Discord on success
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         uses: sarisia/actions-status-discord@v1
@@ -62,3 +62,19 @@ jobs:
           status: success
           title: 'Deployment Successful!'
           description: 'A new version deployed to production'
+
+  notify_failure:
+    needs: [build_and_test]
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Notify Discord on failure
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: failure
+          title: 'Build Failed!'
+          description: |
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+            Author: ${{ github.event.head_commit.author.name }}
