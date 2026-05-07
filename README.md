@@ -20,3 +20,6 @@ Start by running `npm install` inside the project folder
 This change is made on a feature branch.
 
 Added automatic versioning.
+
+## Exercise 21 repository
+https://github.com/Pankaj2820/my-cicd-pipeline
